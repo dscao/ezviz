@@ -1,0 +1,45 @@
+{
+  "config": {
+      "abort": {
+          "already_configured": "设备已经配置"
+      },
+      "error": {
+          "cannot_connect": "连接失败",
+          "invalid_auth": "认证错误",
+          "unknown": "未知错误"
+      },
+      "step": {
+          "user": {
+              "title":"萤石云摄像头",
+              "description": "通过[萤石开放平台](https://open.ys7.com/console/application.html)获取。",
+              "data": {
+                "appkey": "appKey",
+                "appsecret": "appSecret",
+                "deviceserial": "摄像头序列号"
+              }
+          }
+      }
+  },
+  "options": {
+      "step": {
+        "user":{
+            "data": {					
+              "update_interval_seconds": "刷新间隔时间(3-120 秒)",
+              "deviceserial": "只显示以下设备(序列号)，不选则显示所有设备。"
+            }
+        }
+      }
+  },
+    "services": {
+        "send_control_command": {
+            "name": "发送控制命令",
+            "description": "向设备发送控制命令。",
+            "fields": {
+                "code": {
+                    "name": "命令代码",
+                    "description": "要发送的命令代码"
+                }
+            }
+        }
+    }
+}

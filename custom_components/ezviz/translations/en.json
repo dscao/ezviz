@@ -1,0 +1,58 @@
+{
+  "config": {
+      "abort": {
+          "already_configured": "Device is already configured"
+      },
+      "error": {
+          "cannot_connect": "Failed to connect",
+          "invalid_auth": "Invalid authentication",
+          "unknown": "Unexpected error"
+      },
+      "step": {
+          "user": {
+              "title":"Gree AC",
+              "data": {
+                  "appkey": "Host",
+                  "port": "Port，as 7000",
+        "target_temp_step": "target_temp_step"					
+              }
+          }
+      }
+  },
+  "options": {
+    "step": {
+      "user":{
+          "data": {
+            "update_interval_seconds": "Update_interval(1-60 seconds)"
+          }
+      }
+    }
+  },	
+  "services": {
+    "send_control_command": {
+      "name": "send_control_command",
+      "description": "send_control_command."
+    },
+    "send_open_command": {
+      "name": "send_open_command",
+      "description": "send_open_command."
+    },
+    "send_install_command": {
+      "name": "send_install_command",
+      "description": "send_install_command."
+    },
+    "send_clean_command": {
+      "name": "send_clean_command",
+      "description": "send_clean_command."
+    },
+    "send_command_queue": {
+      "name": "send_command_queue",
+      "description": "send_command_queue."
+    },
+    "send_connect_command": {
+      "name": "send_connect_command",
+      "description": "send_connect_command."
+    }
+  }
+  
+}

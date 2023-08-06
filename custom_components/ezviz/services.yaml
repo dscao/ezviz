@@ -1,0 +1,24 @@
+capture:
+  name: capture
+  description: capture.
+  target:
+    entity:
+      integration: ezviz
+      domain: camera
+
+humandetect:
+  name: humandetect
+  description: humandetect.
+  fields:
+    picurl:
+      example: "http://xxx/test.jpg"
+      required: true
+      selector:
+        text:
+    operation:
+      example: "number"
+      selector:
+        select:
+          options:
+            - number
+            - rect
