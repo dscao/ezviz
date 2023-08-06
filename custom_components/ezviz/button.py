@@ -40,7 +40,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     if devicechannel["deviceSerial"] == device["deviceSerial"] and devicechannel["permission"] == -1:
                     
                         buttontypes = {}
-                        if coordinator.data[device["deviceSerial"]+"-capacity"].get("support_ptz") == '1':
+                        if coordinator.data["capacity"][device["deviceSerial"]].get("support_ptz") == '1':
                             buttontypes["stop"] = BUTTON_TYPES["stop"]
                             buttontypes["up"] = BUTTON_TYPES["up"]
                             buttontypes["down"] = BUTTON_TYPES["down"]
@@ -50,21 +50,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             buttontypes["downleft"] = BUTTON_TYPES["downleft"]
                             buttontypes["upright"] = BUTTON_TYPES["upright"]
                             buttontypes["downright"] = BUTTON_TYPES["downright"]
-                        if coordinator.data[device["deviceSerial"]+"-capacity"].get("ptz_45",'0' ) == '0':
+                        if coordinator.data["capacity"][device["deviceSerial"]].get("ptz_45",'0' ) == '0':
                             buttontypes["upleft"] = None
                             buttontypes["downleft"] = None
                             buttontypes["upright"] = None
                             buttontypes["downright"] = None
-                        if coordinator.data[device["deviceSerial"]+"-capacity"].get("ptz_top_bottom",'0') == '0':
+                        if coordinator.data["capacity"][device["deviceSerial"]].get("ptz_top_bottom",'0') == '0':
                             buttontypes["up"] = None
                             buttontypes["down"] = None
-                        if coordinator.data[device["deviceSerial"]+"-capacity"].get("ptz_left_right",'0') =='0':
+                        if coordinator.data["capacity"][device["deviceSerial"]].get("ptz_left_right",'0') =='0':
                             buttontypes["left"] = None
                             buttontypes["right"] = None
-                        if coordinator.data[device["deviceSerial"]+"-capacity"].get("ptz_zoom") =='1':
+                        if coordinator.data["capacity"][device["deviceSerial"]].get("ptz_zoom") =='1':
                             buttontypes["zoombig"] = BUTTON_TYPES["zoombig"]
                             buttontypes["zoomsmall"] = BUTTON_TYPES["zoomsmall"]
-                        if coordinator.data[device["deviceSerial"]+"-capacity"].get("support_capture") =='1':
+                        if coordinator.data["capacity"][device["deviceSerial"]].get("support_capture") =='1':
                             buttontypes["capture"] = BUTTON_TYPES["capture"]
                             buttontypes["vehicleprops"] = BUTTON_TYPES["vehicleprops"]
                             buttontypes["humandetect"] = BUTTON_TYPES["humandetect"]

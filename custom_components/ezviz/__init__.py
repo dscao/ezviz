@@ -49,13 +49,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     appsecret = entry.data[CONF_APP_SECRET]
     devices = entry.data[CONF_DEVICES]
     
-    update_interval_seconds = entry.options.get(CONF_UPDATE_INTERVAL, 10)    
-    deviceserial = entry.options.get(CONF_DEVICE_SERIAL,[])
+    update_interval_seconds = entry.options.get(CONF_UPDATE_INTERVAL, 30)    
+    deviceserials = entry.options.get(CONF_DEVICE_SERIAL,[])
+    haswitchs = entry.options.get(CONF_SWITCHS,[])
     
     _LOGGER.debug(devices)
-    _LOGGER.debug(deviceserial)
+    _LOGGER.debug(deviceserials)
+    _LOGGER.debug(haswitchs)
 
-    coordinator = DataUpdateCoordinator(hass, appkey, appsecret, devices, deviceserial, update_interval_seconds)
+    coordinator = DataUpdateCoordinator(hass, appkey, appsecret, devices, deviceserials, haswitchs, update_interval_seconds)
     
     await coordinator.async_refresh()
 
@@ -103,17 +105,18 @@ async def update_listener(hass, entry):
 class DataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data."""
 
-    def __init__(self, hass, appkey, appsecret, devices, deviceserial, update_interval_seconds):
+    def __init__(self, hass, appkey, appsecret, devices, deviceserials, haswitchs, update_interval_seconds):
         """Initialize."""
         update_interval = timedelta(seconds=update_interval_seconds)
 
-        _LOGGER.debug("Data will be update every %s", update_interval)
+        _LOGGER.info("Data will be update every %s", update_interval)
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=update_interval)
         self._name = appkey[0:8]
         self._appkey = appkey
         self._appsecret = appsecret
         self._devices = devices
-        self._deviceserial = deviceserial
+        self._deviceserials = deviceserials
+        self._haswitchs = haswitchs
         self._hass = hass        
         self._data = {}
         self.times = 0
@@ -122,10 +125,10 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
         self._apikey = {"appKey": self._appkey,
             "appSecret": self._appsecret
             }        
-        self._data[self._deviceserial] = {}
+
         self._data["devicelistinfo"] = None
         self._data["cameralistinfo"] = None
-        self._data[self._deviceserial+"-capacity"] = None
+        self._data["capacity"] = {}
 
     def is_json(self, jsonstr):
         try:
@@ -137,7 +140,7 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
     def sendHttpRequest(self, url):
         try:            
             resp = requests.get(url,timeout=TIMEOUT_SECONDS)
-            _LOGGER.debug(url)
+            _LOGGER.debug("get url:" + url)
             json_text = resp.text
             if self.is_json(json_text):
                 resdata = json.loads(json_text)
@@ -151,7 +154,7 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
     def sendHttpPost(self, url, data):
         try:            
             resp = requests.post(url, data = data, timeout=TIMEOUT_SECONDS)
-            _LOGGER.debug(url)
+            _LOGGER.debug("post url:" + url)
             json_text = resp.text
             if self.is_json(json_text):
                 resdata = json.loads(json_text)
@@ -180,24 +183,32 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug(response)
         if response["code"] == '200':
             self._data["devicelistinfo"] = response["data"]
+            if self._deviceserials:
+                serialdevices = []
+                for device in self._data["devicelistinfo"]:
+                    for serial in self._deviceserials:
+                        if device["deviceSerial"] == serial:
+                            serialdevices.append(device)            
+                self._data["devicelistinfo"] = serialdevices
         else:
             _LOGGER.error("Error API return in getDeviceListinfo, code=%s, msg=%s",response['code'],response['msg'])
             
     async def GetCameraListInfo(self):
-        #_LOGGER.debug("getDeviceListinfo:"+self._appkey)
+        #_LOGGER.debug("GetCameraListInfo:"+self._appkey)
         response = await self._hass.async_add_executor_job(self.sendHttpPost,'https://open.ys7.com/api/lapp/camera/list', {"accessToken": self._params["accessToken"]})
         _LOGGER.debug(response)
         if response["code"] == '200':
             self._data["cameralistinfo"] = response["data"]
         else:
-            _LOGGER.error("Error API return in getDeviceListinfo, code=%s, msg=%s",response['code'],response['msg'])
+            _LOGGER.error("Error API return in GetCameraListInfo, code=%s, msg=%s",response['code'],response['msg'])
     
     async def GetDeviceCapacity(self, deviceserial):
         #_LOGGER.debug("GetDeviceCapacity: s%",deviceserial)
         self._params["deviceSerial"] = deviceserial
         response = await self._hass.async_add_executor_job(self.sendHttpPost,'https://open.ys7.com/api/lapp/device/capacity', self._params)
+        _LOGGER.debug(response)
         if response["code"] == '200':
-            self._data[deviceserial+"-capacity"] = response["data"]
+            self._data["capacity"][deviceserial] = response["data"]
         else:
             _LOGGER.error("Error API return in GetDeviceCapacity, code=%s, msg=%s",response['code'],response['msg'])
             
@@ -205,6 +216,7 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
         #_LOGGER.debug("getDeviceinfo: s%",deviceserial)
         self._params["deviceSerial"] = deviceserial
         response = await self._hass.async_add_executor_job(self.sendHttpPost,'https://open.ys7.com/api/lapp/device/info', self._params)
+        _LOGGER.debug(response)
         if response["code"] == '200':
             self._data[deviceserial] = response["data"]
         else:
@@ -214,7 +226,7 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
         #_LOGGER.debug("GetDeviceSwitch: s%",deviceserial)
         self._params["deviceSerial"] = deviceserial
         response = await self._hass.async_add_executor_job(self.sendHttpRequest,"https://open.ys7.com/api/deviceconfig/v3/devices/" +
-                                  self._deviceserial + "/switch/status/list?accessToken=" + self._params["accessToken"])
+                                  self._params["deviceSerial"] + "/switch/status/list?accessToken=" + self._params["accessToken"])
         _LOGGER.debug(response)
         if response["meta"]["code"] == 200:
             self._data[deviceserial]["switch"] = response["switchInfos"]
@@ -225,6 +237,7 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
         #_LOGGER.debug("GetDeviceonoff: s%",deviceserial)
         self._params["deviceSerial"] = deviceserial
         response = await self._hass.async_add_executor_job(self.sendHttpPost,'https://open.ys7.com/api/lapp/device/scene/switch/status', self._params)
+        _LOGGER.debug(response)
         if response["code"] == '200':
             self._data[deviceserial]["on_off"] = 1 if response["data"]["enable"]==0 else 0
         else:
@@ -234,6 +247,7 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
         #_LOGGER.debug("GetDeviceonoff: s%",deviceserial)
         self._params["deviceSerial"] = deviceserial
         response = await self._hass.async_add_executor_job(self.sendHttpPost,'https://open.ys7.com/api/lapp/camera/video/sound/status', self._params)
+        _LOGGER.debug(response)
         if response["code"] == '200':
             _LOGGER.debug(response["data"])
             self._data[deviceserial]["soundswitch"] = 1 if response["data"]["enable"]==1 else 0
@@ -248,39 +262,42 @@ class DataUpdateCoordinator(DataUpdateCoordinator):
             ]
             await asyncio.gather(*tasks)
         
-        #if self._data.get("devicelistinfo")==None:
-        tasks = [            
-            asyncio.create_task(self.GetDeviceListInfo()),
-        ]
-        await asyncio.gather(*tasks)
+        if self._data.get("devicelistinfo")==None:
+            tasks = [            
+                asyncio.create_task(self.GetDeviceListInfo()),
+            ]
+            await asyncio.gather(*tasks)
+            for device in self._data["devicelistinfo"]:
+                tasks = [            
+                    asyncio.create_task(self.GetDeviceCapacity(device["deviceSerial"])),
+                ]
+                await asyncio.gather(*tasks)
         if self._data.get("cameralistinfo")==None:
             tasks = [            
                 asyncio.create_task(self.GetCameraListInfo()),
             ]
             await asyncio.gather(*tasks)
             
-        for switchdata in self._data["devicelistinfo"]:
-            if self._data.get(switchdata["deviceSerial"]+"-capacity")==None:
+        for device in self._data["devicelistinfo"]:            
+            tasks = [            
+                asyncio.create_task(self.GetDeviceInfo(device["deviceSerial"])), 
+            ]
+            await asyncio.gather(*tasks)
+            if "on_off" in self._haswitchs:
                 tasks = [            
-                    asyncio.create_task(self.GetDeviceCapacity(switchdata["deviceSerial"])),
+                    asyncio.create_task(self.GetDeviceonoff(device["deviceSerial"])),
                 ]
                 await asyncio.gather(*tasks)
-            tasks = [            
-                asyncio.create_task(self.GetDeviceInfo(switchdata["deviceSerial"])), 
-            ]
-            await asyncio.gather(*tasks)
-            tasks = [            
-                asyncio.create_task(self.GetDeviceonoff(switchdata["deviceSerial"])),
-            ]
-            await asyncio.gather(*tasks)
-            tasks = [            
-                asyncio.create_task(self.GetDeviceSoundswitch(switchdata["deviceSerial"])),
-            ]
-            await asyncio.gather(*tasks)
-            tasks = [            
-                asyncio.create_task(self.GetDeviceSwitch(switchdata["deviceSerial"])),
-            ]
-            await asyncio.gather(*tasks)
+            if "soundswitch" in self._haswitchs:
+                tasks = [            
+                    asyncio.create_task(self.GetDeviceSoundswitch(device["deviceSerial"])),
+                ]
+                await asyncio.gather(*tasks)
+            if "switch" in self._haswitchs:
+                tasks = [            
+                    asyncio.create_task(self.GetDeviceSwitch(device["deviceSerial"])),
+                ]
+                await asyncio.gather(*tasks)
             
         self._data["updatetime"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())    
         _LOGGER.debug(self._data)

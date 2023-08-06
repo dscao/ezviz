@@ -15,6 +15,7 @@ ATTRIBUTION = "C6CN"
 
 COORDINATOR = "coordinator"
 CONF_UPDATE_INTERVAL = "update_interval_seconds"
+CONF_CAMERA_INTERVAL = "update_camera_seconds"
 
 UNDO_UPDATE_LISTENER = "undo_update_listener"
 
@@ -25,14 +26,9 @@ CONF_CAMERAS = "cameras"
 CONF_STATE_DETECTION_RULES = "state_detection_rules"
 
 SWITCH_TYPES = {
-    'on_off': ['ezviz_onoff', '摄像头开关', 'mdi:toggle-switch', '13', '7'],
-    'defence': ['ezviz_defence', '摄像头布防', 'mdi:alarm-light', '0', '0'],
-    'soundswitch': ['ezviz_soundswitch', '设备麦克风', 'mdi:microphone', '0', '0'],
-    #'scene': ['ezviz_scene', '镜头遮蔽', 'mdi:eye-off', '7', '13'],
-    #'ssl': ['ezviz_ssl', '听声辩位', 'mdi:surround-sound', '8', '14'],
-    #'check': ['ezviz_check', '智能人体检测', 'mdi:motion-sensor', '302', '3'],
-    #'human': ['ezviz_human', '人形追踪', 'mdi:human', '650', '24'],
-    #'navigation': ['ezviz_navigation', '自动巡航', 'mdi:navigation', '651', '25'],    
+    'on_off': ['ezviz_onoff', '摄像头开关', 'mdi:toggle-switch'],
+    'defence': ['ezviz_defence', '摄像头移动侦测', 'mdi:alarm-light'],
+    'soundswitch': ['ezviz_soundswitch', '设备麦克风', 'mdi:microphone'],  
 }
 
 BUTTON_TYPES = {
@@ -198,24 +194,18 @@ SENSOR_TYPES = {
         "translation_key": "wan_ip",
         "icon": "mdi:wan"
     },
-    # "on_off": {
-        # "key": "privacystatus",
-        # "translation_key": "privacystatus",
-        # "entity_registry_enabled_default": "True",
-        # "icon": "mdi:eye-off"
-    # },
-    # "defence": {
-        # "key": "alarmstatus",
-        # "translation_key": "alarmstatus",
-        # "entity_registry_enabled_default": "True",
-        # "icon": "mdi:alarm-light-outline"
-    # },    
-    # "alarmSoundMode": {
-        # "key": "alarm_sound_mod",
-        # "translation_key": "alarm_sound_mod",
-        # "entity_registry_enabled_default": "True",
-        # "icon": "mdi:surround-sound"
-    # },    
+    "defence": {
+        "key": "alarmstatus",
+        "translation_key": "alarmstatus",
+        "entity_registry_enabled_default": "True",
+        "icon": "mdi:alarm-light-outline"
+    },    
+    "alarmSoundMode": {
+        "key": "alarm_sound_mod",
+        "translation_key": "alarm_sound_mod",
+        "entity_registry_enabled_default": "True",
+        "icon": "mdi:surround-sound"
+    },    
     # "battery_level": {
         # "key": "battery_level",
         # "native_unit_of_measurement": "PERCENTAGE",

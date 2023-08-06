@@ -26,6 +26,7 @@ from .const import (
     COORDINATOR, 
     DOMAIN, 
     UNDO_UPDATE_LISTENER,
+    CONF_CAMERA_INTERVAL,
     CONF_STATE_DETECTION_RULES,
     CONF_SWITCHS,
     CONF_BUTTONS,
@@ -38,6 +39,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):    
     """Add entities from a config_entry."""
+    update_camera_seconds = config_entry.options.get(CONF_CAMERA_INTERVAL, 30)
     coordinator = hass.data[DOMAIN][config_entry.entry_id][COORDINATOR]
     _LOGGER.debug(coordinator.data)
     cameras = []
@@ -53,7 +55,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             cameratype = "montion"
                         else:
                             cameratype = "capture"
-                        cameras.append(EzvizCamera(hass, coordinator, device["deviceSerial"], devicechannel["channelNo"], cameratype))
+                        cameras.append(EzvizCamera(hass, coordinator, device["deviceSerial"], devicechannel["channelNo"], cameratype, update_camera_seconds))
             async_add_entities(cameras, False)
     
            
@@ -79,9 +81,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class EzvizCamera(Camera):
     """The representation of a Demo camera."""
     _attr_has_entity_name = True
-    def __init__(self, hass, coordinator, deviceserial, channelno, cameratype):
+    def __init__(self, hass, coordinator, deviceserial, channelno, cameratype, update_camera_seconds):
         """Initialize ezviz camera component."""
-        super().__init__()
+        super().__init__()          
         self.coordinator = coordinator
         self._deviceserial = deviceserial
         self._channelno = channelno
@@ -121,7 +123,8 @@ class EzvizCamera(Camera):
         self._is_video_history_enabled = False
 
         # Default to non-NestAware subscribed, but will be fixed during update
-        self._time_between_snapshots = datetime.timedelta(seconds=30)
+        self._time_between_snapshots = datetime.timedelta(seconds=update_camera_seconds)
+        _LOGGER.info("camera picture will be update every %s", self._time_between_snapshots)
         self._last_image = None
         self._next_snapshot_at = None
         self._attr_unique_id = f"{DOMAIN}_{self._cameratype}_{self._deviceserial}_{self._channelno}"
@@ -198,11 +201,9 @@ class EzvizCamera(Camera):
         now = datetime.datetime.utcnow()  # dt_util.utcnow()
         if self._ready_for_snapshot(now):
             if self._cameratype == 'motion':
-                _LOGGER.debug("is MaoYan")
                 _LOGGER.debug(self._deviceserial)
                 image_path = self.get_device_message()
             elif self._cameratype == 'capture' :
-                _LOGGER.debug("not MaoYan")
                 _LOGGER.debug(self._deviceserial)
                 image_path = self.get_device_capture()
             #_LOGGER.debug("Get camera image: %s" % image_path)

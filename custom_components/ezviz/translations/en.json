@@ -1,58 +1,48 @@
 {
   "config": {
       "abort": {
-          "already_configured": "Device is already configured"
+          "already_configured": "Device already configured"
       },
       "error": {
           "cannot_connect": "Failed to connect",
-          "invalid_auth": "Invalid authentication",
-          "unknown": "Unexpected error"
+          "invalid_auth": "Authentication error",
+          "unknown": "Unknown error"
       },
       "step": {
           "user": {
-              "title":"Gree AC",
+              "title":"EZVIZ Camera",
+              "description": "Obtained through [EZVIZ Open Platform](https://open.ys7.com/console/application.html).",
               "data": {
-                  "appkey": "Host",
-                  "port": "Port，as 7000",
-        "target_temp_step": "target_temp_step"					
+                "appkey": "App Key",
+                "appsecret": "App Secret",
+                "deviceserial": "Camera Serial Number"
               }
           }
       }
   },
   "options": {
-    "step": {
-      "user":{
-          "data": {
-            "update_interval_seconds": "Update_interval(1-60 seconds)"
-          }
+      "step": {
+        "user":{
+            "description": "EZVIZ Open Platform offers free API usage with a daily limit of 10,000 requests, 1,000 snapshots, and 50 or 200 requests for AI interfaces. Refer to the official documentation for more details.",
+            "data": {					
+              "update_interval_seconds": "Refresh interval (3-300 seconds)",
+              "update_camera_seconds": "Camera snapshot interval (3-3600 seconds)",
+              "deviceserial": "Show only the following devices (serial numbers), leave blank to show all devices.",
+              "switchs": "Enabled switch entities (API will be called once for each entity during refresh interval; if not enabled, the API won't be called.)"
+            }
+        }
       }
+  },
+    "services": {
+        "send_control_command": {
+            "name": "Send Control Command",
+            "description": "Send control command to the device.",
+            "fields": {
+                "code": {
+                    "name": "Command Code",
+                    "description": "The command code to be sent"
+                }
+            }
+        }
     }
-  },	
-  "services": {
-    "send_control_command": {
-      "name": "send_control_command",
-      "description": "send_control_command."
-    },
-    "send_open_command": {
-      "name": "send_open_command",
-      "description": "send_open_command."
-    },
-    "send_install_command": {
-      "name": "send_install_command",
-      "description": "send_install_command."
-    },
-    "send_clean_command": {
-      "name": "send_clean_command",
-      "description": "send_clean_command."
-    },
-    "send_command_queue": {
-      "name": "send_command_queue",
-      "description": "send_command_queue."
-    },
-    "send_connect_command": {
-      "name": "send_connect_command",
-      "description": "send_connect_command."
-    }
-  }
-  
 }

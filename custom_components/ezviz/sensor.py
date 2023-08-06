@@ -151,16 +151,6 @@ class EzvizSensor(CoordinatorEntity):
         if SENSOR_TYPES[self.kind].get("device_class"):
             return SENSOR_TYPES[self.kind]["device_class"]
         
-    # @property
-    # def state_attributes(self): 
-        # attrs = {}
-        # data = self.coordinator.data
-        # if self.coordinator.data.get(self.kind + "_attrs"):
-            # attrs = self.coordinator.data[self.kind + "_attrs"]
-        # if data:            
-            # attrs["querytime"] = self.coordinator.data["updatetime"]  
-        # return attrs  
-
     async def async_added_to_hass(self):
         """Connect to dispatcher listening for entity data notifications."""
         self.async_on_remove(

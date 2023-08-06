@@ -26,6 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Add Switchentities from a config_entry."""      
     coordinator = hass.data[DOMAIN][config_entry.entry_id][COORDINATOR] 
+    haswitchs = config_entry.options.get(CONF_SWITCHS,[])
     switchs = []
     _LOGGER.debug(coordinator.data)   
     if coordinator.data.get("devicelistinfo"):
@@ -37,13 +38,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             for device in devices:
                 switchtypes = {}
                 switchtypes["soundswitch"] = SWITCH_TYPES["soundswitch"]
-                if coordinator.data[device["deviceSerial"]+"-capacity"].get("support_privacy") == '1':
+                if coordinator.data["capacity"][device["deviceSerial"]].get("support_privacy") == '1':
                     switchtypes["on_off"] = SWITCH_TYPES["on_off"]
-                if coordinator.data[device["deviceSerial"]+"-capacity"].get("support_defence") == '1':
+                if coordinator.data["capacity"][device["deviceSerial"]].get("support_defence") == '1':
                     switchtypes["defence"] = SWITCH_TYPES["defence"]
                 switchtypes = {key: value for key, value in switchtypes.items() if value is not None}    
                 for swtich in switchtypes:
-                    switchs.append(EzvizSwitch(hass, swtich, coordinator, device["deviceSerial"]))
+                    if swtich in haswitchs or swtich == "defence":
+                        switchs.append(EzvizSwitch(hass, swtich, coordinator, device["deviceSerial"]))
             async_add_entities(switchs, False)
             
 

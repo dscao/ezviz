@@ -27,6 +27,7 @@ from .const import (
     CONF_DEVICE_SERIAL,
     CONF_OPTIONS,
     CONF_UPDATE_INTERVAL,
+    CONF_CAMERA_INTERVAL,
     CONF_SWITCHS,
     CONF_BUTTONS,
     )
@@ -143,6 +144,9 @@ class OptionsFlow(config_entries.OptionsFlow):
         """Handle a flow initialized by the user."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
+        listoptions = []  
+        for deviceconfig in self.config_entry.data.get(CONF_DEVICES,[]):
+            listoptions.append({"value": deviceconfig, "label": deviceconfig})
 
         return self.async_show_form(
             step_id="user",
@@ -150,15 +154,29 @@ class OptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Optional(
                         CONF_UPDATE_INTERVAL,
-                        default=self.config_entry.options.get(CONF_UPDATE_INTERVAL, 10),
-                    ): vol.All(vol.Coerce(int), vol.Range(min=3, max=120)),
+                        default=self.config_entry.options.get(CONF_UPDATE_INTERVAL, 30),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=3, max=600)),
+                    vol.Optional(
+                        CONF_CAMERA_INTERVAL,
+                        default=self.config_entry.options.get(CONF_CAMERA_INTERVAL, 30),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=3, max=3600)),
                     vol.Optional(
                         CONF_DEVICE_SERIAL, 
-                        default=self.config_entry.options.get(CONF_DEVICE_SERIAL,"")): SelectSelector(
+                        default=self.config_entry.options.get(CONF_DEVICE_SERIAL,[])): SelectSelector(
                         SelectSelectorConfig(
-                            options=self.config_entry.data.get(CONF_DEVICES,[])), 
-                            # multiple=True,translation_key=CONF_SWITCHS
+                            options=listoptions,
+                            multiple=True,translation_key=CONF_DEVICE_SERIAL
+                            )
                     ),
+                    vol.Optional(CONF_SWITCHS, default=self.config_entry.options.get(CONF_SWITCHS,[])): SelectSelector(
+                            SelectSelectorConfig(
+                                options=[
+                                    {"value": "on_off", "label": "开关(遮蔽)"},                                    
+                                    {"value": "soundswitch", "label": "麦克风"},
+                                ], 
+                                multiple=True,translation_key=CONF_SWITCHS
+                            )
+                        ),
                 }
             ),
         )
