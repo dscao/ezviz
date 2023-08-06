@@ -25,7 +25,7 @@
         "user":{
             "description": "萤石开放平台免费用户api每天总数10000次，抓图1000次，AI接口50次或200次，具体查看官方资料。",
             "data": {					
-              "update_interval_seconds": "刷新间隔时间(3-300 秒)",
+              "update_interval_seconds": "刷新间隔时间(3-600 秒)",
               "update_camera_seconds": "camera自动抓图间隔时间(3-3600 秒)",
               "deviceserial": "只显示以下设备(序列号)，不选则显示所有设备。",
               "switchs": "启用的开关实体（每个实体刷新间隔调用一次api，不启用则不会调用。）"
