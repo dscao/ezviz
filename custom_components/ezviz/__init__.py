@@ -51,7 +51,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     update_interval_seconds = entry.options.get(CONF_UPDATE_INTERVAL, 30)    
     deviceserials = entry.options.get(CONF_DEVICE_SERIAL,[])
-    haswitchs = entry.options.get(CONF_SWITCHS,[])
+    haswitchs = entry.options.get(CONF_SWITCHS,["on_off"])
     
     _LOGGER.debug(devices)
     _LOGGER.debug(deviceserials)

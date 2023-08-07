@@ -26,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Add Switchentities from a config_entry."""      
     coordinator = hass.data[DOMAIN][config_entry.entry_id][COORDINATOR] 
-    haswitchs = config_entry.options.get(CONF_SWITCHS,[])
+    haswitchs = config_entry.options.get(CONF_SWITCHS,["on_off"])
     switchs = []
     _LOGGER.debug(coordinator.data)   
     if coordinator.data.get("devicelistinfo"):

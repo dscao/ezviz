@@ -158,7 +158,7 @@ class OptionsFlow(config_entries.OptionsFlow):
                     ): vol.All(vol.Coerce(int), vol.Range(min=3, max=600)),
                     vol.Optional(
                         CONF_CAMERA_INTERVAL,
-                        default=self.config_entry.options.get(CONF_CAMERA_INTERVAL, 30),
+                        default=self.config_entry.options.get(CONF_CAMERA_INTERVAL, 120),
                     ): vol.All(vol.Coerce(int), vol.Range(min=3, max=3600)),
                     vol.Optional(
                         CONF_DEVICE_SERIAL, 
@@ -168,7 +168,7 @@ class OptionsFlow(config_entries.OptionsFlow):
                             multiple=True,translation_key=CONF_DEVICE_SERIAL
                             )
                     ),
-                    vol.Optional(CONF_SWITCHS, default=self.config_entry.options.get(CONF_SWITCHS,[])): SelectSelector(
+                    vol.Optional(CONF_SWITCHS, default=self.config_entry.options.get(CONF_SWITCHS,["on_off"])): SelectSelector(
                             SelectSelectorConfig(
                                 options=[
                                     {"value": "on_off", "label": "开关(遮蔽)"},                                    
