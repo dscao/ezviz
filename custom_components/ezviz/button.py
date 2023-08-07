@@ -113,7 +113,8 @@ class EzvizButton(ButtonEntity):
         self._attr_device_class = "restart"
         self._attr_entity_registry_enabled_default = True
         self._hass = hass
-        self._name = str(self._channelno) + "_" + BUTTON_TYPES[self.kind]['name']
+        channelstr = str(self._channelno) + "_" if self._channelno > 1 else ""
+        self._name = channelstr + BUTTON_TYPES[self.kind]['name']
         self._attr_translation_key = self.kind
         self._capture_pic = None
         self._vehicleprops_data = None

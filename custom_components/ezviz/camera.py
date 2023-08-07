@@ -39,7 +39,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):    
     """Add entities from a config_entry."""
-    update_camera_seconds = config_entry.options.get(CONF_CAMERA_INTERVAL, 30)
+    update_camera_seconds = config_entry.options.get(CONF_CAMERA_INTERVAL, 120)
     coordinator = hass.data[DOMAIN][config_entry.entry_id][COORDINATOR]
     _LOGGER.debug(coordinator.data)
     cameras = []
@@ -111,7 +111,8 @@ class EzvizCamera(Camera):
         self._attr_device_class = "camera"
         self._attr_entity_registry_enabled_default = True
         self._hass = hass
-        self._name = str(self._channelno) + "_" + self._cameratype
+        channelstr = str(self._channelno) + "_" if self._channelno > 1 else ""
+        self._name = channelstr + self._cameratype
         self._attr_translation_key = self._cameratype
         
         self._listcamera = self.coordinator.data.get(self._deviceserial)
@@ -207,7 +208,6 @@ class EzvizCamera(Camera):
                 _LOGGER.debug(self._deviceserial)
                 image_path = self.get_device_capture()
             #_LOGGER.debug("Get camera image: %s" % image_path)
-            #_LOGGER.debug("Config: %s" % self._isMaoyan)
             _LOGGER.debug(image_path)
             if image_path == 'error':
                 return None
