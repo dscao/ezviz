@@ -291,7 +291,13 @@ class EzvizButton(ButtonEntity):
         try:
             async with timeout(10): 
                 resdata = await self._hass.async_add_executor_job(self.sendHttpPost, url, {}, ctrl)
-                return resdata["data"].get("picUrl")
+                if resdata.get("data"):
+                    if resdata["data"].get("picUrl"):
+                        return resdata["data"]["picUrl"]
+                    else:
+                        return resdata
+                else:
+                    return resdata
         except (
             ClientConnectorError
         ) as error:
