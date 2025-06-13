@@ -3,7 +3,8 @@ from __future__ import annotations
 from async_timeout import timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, Config
+from homeassistant.core import HomeAssistant
+from homeassistant.core_config import Config
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 import json
 import time
@@ -71,11 +72,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         UNDO_UPDATE_LISTENER: undo_listener,
     }
 
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
-           
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+          
     return True
 
 async def async_unload_entry(hass, entry):

@@ -252,5 +252,5 @@ SENSOR_TYPES = {
 ALARMSOUNDMODE = ["短叫", "长叫","静音"]
 DEFENCE = ["撤防", "布防"]
 ON_OFF = ["启用遮蔽", "关闭遮蔽"]
-OFFLINENOTIFY = ["关闭设备下线通知", "开启设备下线通知"]
+OFFLINENOTIFY = ["设备下线通知已关闭", "设备下线通知已开启"]
 ONLINESTATUS = ["不在线", "在线"]
