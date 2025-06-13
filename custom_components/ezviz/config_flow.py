@@ -134,7 +134,7 @@ class OptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry):
         """Initialize autoamap options flow."""
-        self.config_entry = config_entry
+        self._config = dict(config_entry.data)
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
@@ -143,7 +143,13 @@ class OptionsFlow(config_entries.OptionsFlow):
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            self._config.update(user_input)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data=self._config
+            )
+            await self.hass.config_entries.async_reload(self._config_entry_id)
+            return self.async_create_entry(title="", data=self._config)
         listoptions = []  
         for deviceconfig in self.config_entry.data.get(CONF_DEVICES,[]):
             listoptions.append({"value": deviceconfig, "label": deviceconfig})
